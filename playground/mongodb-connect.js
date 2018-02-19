@@ -1,5 +1,4 @@
-const MongoClient = require('mongodb').MongoClient;
-const pctp = require('pisco-callback-to-promise');
+const {MongoClient, ObjectID} = require('mongodb');
 
 const concatError = (error) => `Unable to connect to MongoDB server: ${error}`;
 const consoleErrorMongo = (error, db) => console.log(concatError(error));
@@ -10,6 +9,7 @@ const insertOne = (db, table, data) => {
       if (error) {
         return reject(error);
       }
+      console.log(result.ops[0]._id.getTimestamp());
       return resolve(result);
     });
   });
@@ -22,5 +22,5 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp')
   })
   .then((db) => insertOne(db, 'Users', {name: 'Alberto Eyo', age: 32, location: 'Madrid'}))
   .then(result => console.log(JSON.stringify(result.ops, undefined, 2)))
-  .then(() => clientDB.close())
-  .catch(consoleErrorMongo);
+  .catch(consoleErrorMongo)
+  .then(() => clientDB.close());
