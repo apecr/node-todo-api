@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/TodoApp');
 
-const logError = e => console.log('Unable to save todo');
+const logError = e => console.log('Unable to save todo', e);
 const Todo = mongoose.model('Todo', {
   text: {
     type: String
