@@ -33,7 +33,7 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp')
     return client.db('TodoApp');
   })
   .then(db => {
-    db.collection('Todos').find({completed: false}).toArray().then((docs) => {
+    db.collection('Todos').find({_id: new ObjectID('5a8ac8b58f628309db7929d0')}).toArray().then((docs) => {
       console.log('Todos');
       console.log(JSON.stringify(docs, undefined, 2));
     }, err => console.log('Unable to fetch todos', err));
