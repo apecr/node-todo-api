@@ -15,7 +15,7 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp')
     return client.db('TodoApp');
   })
   .then(db => {
-    db.collection('Todos').findOneAndDelete({text: 'Eat lunch'}).then((result) => {
+    db.collection('Todos').findOneAndDelete({completed: false}).then((result) => {
       console.log('Todos');
       console.log(result);
     }, err => console.log('Unable to delete todos', err));
