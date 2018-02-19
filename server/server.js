@@ -16,7 +16,7 @@ const Todo = mongoose.model('Todo', {
   }
 });
 
-const newTodo = new Todo({text: 'Cook dinner'});
+const newTodo = new Todo({text: 'Get back home', completed: true, completedAt: 20180219});
 
 newTodo.save().then((doc) => {
   console.log('Saved todo', doc);
