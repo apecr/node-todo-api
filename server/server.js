@@ -41,7 +41,7 @@ app.get('/todos/:id', (req, res) => {
     .catch(() => res.status(400).send());
 });
 
-app.listen(port);
+app.listen(port, () => console.log(`Listening at port ${port}`));
 
 module.exports = { app };
 
