@@ -3,9 +3,11 @@ const request = require('supertest');
 
 const {app} = require('./../../server/server');
 const {Todo} = require('./../../server/models/todo');
+const {ObjectID} = require('mongodb');
 
 /* global define, it, describe, before, beforeEach, afterEach, after */
 const testTodos = [{
+  _id: new ObjectID(),
   text: 'First test todo'
 }, {
   text: 'Second test todo'
@@ -49,12 +51,8 @@ describe('Testing Todo App', () => {
     });
   });
   describe('#GET /todos/:id', () => {
-    const text = 'Test todo task';
     const getIdJustCreated = () => {
-      return request(app)
-        .post('/todos')
-        .send({text})
-        .then(res => res.body._id);
+      return Promise.resolve(testTodos[0]._id.toHexString());
     };
     it('Should get a todo by id rigth', () => {
       return getIdJustCreated()
@@ -62,7 +60,7 @@ describe('Testing Todo App', () => {
           return request(app)
             .get(`/todos/${id}`)
             .expect(200)
-            .expect(res => expect(res.body.todo.text).toBe(text));
+            .expect(res => expect(res.body.todo.text).toBe(testTodos[0].text));
         });
     });
     it('Should get an error because the is not valid', () => {
