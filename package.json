@@ -7,7 +7,11 @@
     "test": "mocha -u tdd --recursive --exit",
     "tesst-watch": "nodemon --exec 'npm test'",
     "coverage": "nyc npm t  && nyc report --report-dir=test-reports --reporter=html --reporter=lcov",
-    "sonar": "sonar-scanner"
+    "sonar": "sonar-scanner",
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": "7.3.0"
   },
   "author": "",
   "license": "ISC",
