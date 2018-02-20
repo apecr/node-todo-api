@@ -9,7 +9,6 @@ const app = express();
 
 app.use(bodyParser.json());
 app.post('/todos', (req, res) => {
-  console.log(req.body);
   const todo = new Todo({text: req.body.text});
   return todo
     .save()
@@ -21,4 +20,6 @@ app.post('/todos', (req, res) => {
 // GET /todos/1255092edef
 
 app.listen(3000, () => console.log('Started on port 3000'));
+
+module.exports = {app};
 
