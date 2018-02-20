@@ -48,6 +48,39 @@ describe('Testing Todo App', () => {
         .expect(res => expect(res.body.todos.length).toBe(2));
     });
   });
+  describe('#GET /todos/:id', () => {
+    const text = 'Test todo task';
+    const getIdJustCreated = () => {
+      return request(app)
+        .post('/todos')
+        .send({text})
+        .then(res => res.body._id);
+    };
+    it('Should get a todo by id rigth', () => {
+      return getIdJustCreated()
+        .then(id => {
+          return request(app)
+            .get(`/todos/${id}`)
+            .expect(200)
+            .expect(res => expect(res.body.todo.text).toBe(text));
+        });
+    });
+    it('Should get an error because the is not valid', () => {
+      return request(app)
+        .get('/todos/2urefdhbsk')
+        .expect(404);
+    });
+    it('Should get a 404, the id does not exist although is valid', () => {
+      const incrementFirstNumber = id => Number(id.substr(null, 1)) + 1 + id.substr(1);
+      return getIdJustCreated()
+        .then(incrementFirstNumber)
+        .then(id => {
+          return request(app)
+            .get(`/todos/${id}`)
+            .expect(404);
+        });
+    });
+  });
 });
 
 
