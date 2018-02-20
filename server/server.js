@@ -1,52 +1,24 @@
-const mongoose = require('mongoose');
+const express = require('express');
+const bodyParser = require('body-parser');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/TodoApp');
+const {mongoose} = require('./db/mongoose');
+const {Todo} = require('./models/todo');
+const {User} = require('./models/user');
 
-const logTodoError = e => console.log('Unable to save todo', e);
-const Todo = mongoose.model('Todo', {
-  text: {
-    type: String,
-    required: true,
-    minlength: 1,
-    trim: true
-  },
-  completed: {
-    type: Boolean,
-    default: false
-  },
-  completedAt: {
-    type: Number,
-    default: null
-  }
+const app = express();
+
+app.use(bodyParser.json());
+app.post('/todos', (req, res) => {
+  console.log(req.body);
+  const todo = new Todo({text: req.body.text});
+  return todo
+    .save()
+    .then(doc => res.status(201).send(doc))
+    .catch((error) => res.status(400).send(error));
 });
 
-const newTodo = new Todo({text: 'Edit this video', completed: false});
+// GET /todos
+// GET /todos/1255092edef
 
-newTodo.save().then((doc) => {
-  console.log('Saved todo', doc);
-}, logTodoError);
+app.listen(3000, () => console.log('Started on port 3000'));
 
-// User model
-// email property - require it - trim it - set string, min length of 1
-// Create a new one (see that one fails)
-
-const User = mongoose.model('Users',
-  {
-    email: {
-      type: String,
-      required: true,
-      minlength: 1,
-      trim: true
-    }
-  });
-
-const newUserOK = new User({email: 'as@as.as'});
-const newUserKO = new User({email: '    '});
-
-newUserOK
-  .save()
-  .then((doc) => console.log('Saved todo', doc))
-  .then(() => newUserKO.save())
-  .then((doc) => console.error('This doc was not supossed to be saved', doc))
-  .catch(error => console.log('User without email not saved, OK:', error));
