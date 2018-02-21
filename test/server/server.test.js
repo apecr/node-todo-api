@@ -12,6 +12,9 @@ const testTodos = [{
 }, {
   text: 'Second test todo'
 }];
+const getIdJustCreated = () => {
+  return Promise.resolve(testTodos[0]._id.toHexString());
+};
 
 describe('Testing Todo App', () => {
   beforeEach('Setup the database', () => Todo.remove({}).then(() => Todo.insertMany(testTodos)));
@@ -51,9 +54,6 @@ describe('Testing Todo App', () => {
     });
   });
   describe('#GET /todos/:id', () => {
-    const getIdJustCreated = () => {
-      return Promise.resolve(testTodos[0]._id.toHexString());
-    };
     it('Should get a todo by id rigth', () => {
       return getIdJustCreated()
         .then(id => {
@@ -77,6 +77,29 @@ describe('Testing Todo App', () => {
             .get(`/todos/${id}`)
             .expect(404);
         });
+    });
+  });
+  describe('#DELETE /todos/:id', () => {
+    it('Should delete a todo by id', () => {
+      return getIdJustCreated()
+        .then(id => {
+          return request(app)
+            .delete(`/todos/${id}`)
+            .expect(200)
+            .then(res => expect(res.body.todo.text).toBe(testTodos[0].text));
+        });
+    });
+    it('Should get a 404, the id does not exist', () => {
+      return request(app)
+        .delete(`/todos/${new ObjectID()}`)
+        .expect(404)
+        .then(res => expect(res.body).toEqual({}));
+    });
+    it('Should get a 404, the id is not valid', () => {
+      return request(app)
+        .delete('/todos/123')
+        .expect(404)
+        .then(res => expect(res.body).toEqual({}));
     });
   });
 });
