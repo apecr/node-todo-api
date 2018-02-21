@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -u tdd --recursive --exit",
+    "test": "export NODE_ENV=test || SET \"NODE_EV=test\" && mocha -u tdd --recursive --exit",
     "tesst-watch": "nodemon --exec 'npm test'",
     "coverage": "nyc npm t  && nyc report --report-dir=test-reports --reporter=html --reporter=lcov",
     "sonar": "sonar-scanner",

@@ -1,19 +1,18 @@
+const config = require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
-const fs = require('fs');
+const {logger} = require('./utils/logger');
+
+const env = config.prepareEnvironment();
+logger.info(`env ***** ${env}`);
 
 const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
 const { ObjectID } = require('mongodb');
 
-
 const app = express();
-const port = process.env.PORT || 3000;
-const logger = {
-  info: (log) => fs.appendFileSync('server.log', `${new Date().toString()}: ${log}\n`)
-};
 
 app.use(bodyParser.json());
 
@@ -85,7 +84,7 @@ app.patch('/todos/:id', (req, res) => {
 
 });
 
-app.listen(port, () => logger.info(`Listening at port ${port}`));
+app.listen(process.env.PORT, () => logger.info(`Listening at port ${process.env.PORT}`));
 
 // Export
 module.exports = { app };
