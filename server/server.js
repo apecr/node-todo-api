@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+const fs = require('fs');
 
 const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
@@ -10,8 +11,12 @@ const { ObjectID } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 3000;
+const logger = {
+  info: (log) => fs.appendFileSync('server.log', `${new Date().toString()}: ${log}\n`)
+};
 
 app.use(bodyParser.json());
+
 app.post('/todos', (req, res) => {
   const todo = new Todo({ text: req.body.text });
   return todo
@@ -80,7 +85,7 @@ app.patch('/todos/:id', (req, res) => {
 
 });
 
-app.listen(port, () => console.log(`Listening at port ${port}`));
+app.listen(port, () => logger.info(`Listening at port ${port}`));
 
 // Export
 module.exports = { app };
