@@ -21,7 +21,8 @@
     "lodash": "^4.17.5",
     "mongodb": "^3.0.2",
     "mongoose": "^5.0.6",
-    "pisco-callback-to-promise": "^0.1.11"
+    "pisco-callback-to-promise": "^0.1.11",
+    "validator": "^9.4.1"
   },
   "devDependencies": {
     "expect": "^22.3.0",
