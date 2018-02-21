@@ -82,12 +82,11 @@ describe('Testing Todo App', () => {
   describe('#DELETE /todos/:id', () => {
     it('Should delete a todo by id', () => {
       return getIdJustCreated()
-        .then(id => {
-          return request(app)
-            .delete(`/todos/${id}`)
-            .expect(200)
-            .then(res => expect(res.body.todo.text).toBe(testTodos[0].text));
-        });
+        .then(id => request(app).delete(`/todos/${id}`).expect(200))
+        .then(res => expect(res.body.todo.text).toBe(testTodos[0].text))
+        .then(getIdJustCreated)
+        .then(id => Todo.findById(id))
+        .then(todo => expect(todo).toBe(null));
     });
     it('Should get a 404, the id does not exist', () => {
       return request(app)
