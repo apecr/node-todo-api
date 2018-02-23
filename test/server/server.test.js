@@ -4,23 +4,16 @@ const request = require('supertest');
 const {app} = require('./../../server/server');
 const {Todo} = require('./../../server/models/todo');
 const {ObjectID} = require('mongodb');
+const {testTodos, populateTodos, testUsers, populateUsers} = require('./seed/seed');
 
 /* global define, it, describe, before, beforeEach, afterEach, after */
-const testTodos = [{
-  _id: new ObjectID(),
-  text: 'First test todo'
-}, {
-  _id: new ObjectID(),
-  text: 'Second test todo',
-  completed: true,
-  completedAt: 333
-}];
+
 const getIdJustCreated = () => {
   return Promise.resolve(testTodos[0]._id.toHexString());
 };
 
 describe('Testing Todo App', () => {
-  beforeEach('Setup the database', () => Todo.remove({}).then(() => Todo.insertMany(testTodos)));
+  beforeEach('Setup the database', populateTodos);
   describe('#POST /todos', () => {
     it('should create a new todo', () => {
       const text = 'Test todo task';
@@ -138,6 +131,13 @@ describe('Testing Todo App', () => {
         });
     });
 
+  });
+});
+
+describe('Testing the user sections of todoApp', () => {
+  beforeEach('Populate users', populateUsers);
+  it('Should print hello world in console', () => {
+    console.log('Hello World');
   });
 });
 
