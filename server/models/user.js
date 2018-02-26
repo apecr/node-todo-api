@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
 
+let User;
+
 const UserSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -59,6 +61,12 @@ UserSchema.statics.findByToken = function(token) {
   });
 };
 
+UserSchema.statics.finByCredentials = function(email, password) {
+  return User.findOne({email})
+    .then(user => (user ? bcrypt.compare(password, user.password) : Promise.reject({errorMessage: 'User not found'}))
+      .then(areTheSame => areTheSame ? user : Promise.reject({errorMessage: 'Not the same password'})));
+};
+
 UserSchema.pre('save', function(next) {
   if (this.isModified('password')) {
     return bcrypt.genSalt(10)
@@ -70,6 +78,7 @@ UserSchema.pre('save', function(next) {
   }
 });
 
-const User = mongoose.model('Users', UserSchema);
+User = mongoose.model('Users', UserSchema);
+
 
 module.exports = {User};
