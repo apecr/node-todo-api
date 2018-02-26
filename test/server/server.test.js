@@ -1,5 +1,6 @@
 const expect = require('expect');
 const request = require('supertest');
+const chaiExpect = require('chai').expect;
 
 const { app } = require('./../../server/server');
 const { Todo } = require('./../../server/models/todo');
@@ -193,6 +194,26 @@ describe('Testing the user sections of todoApp', () => {
         .then(res => {
           expect(res.headers['x-auth']).not.toBeTruthy();
         });
+    });
+  });
+  describe('POST /users/login', () => {
+    it('should login user and return auth token', () => {
+      return request(app)
+        .post('/users/login')
+        .send({email: testUsers[1].email, password: testUsers[1].password})
+        .expect(201)
+        .then(res => Promise.resolve(expect(res.headers['x-auth']).toBeTruthy())
+          .then(() => User.findById(testUsers[1]._id))
+          .then(user => chaiExpect(user.tokens[0].token).to.be.equal(res.headers['x-auth'])));
+    });
+    it('should reject invalid login', () => {
+      return request(app)
+        .post('/users/login')
+        .send({email: testUsers[1].email, password: 'wrongPassword'})
+        .expect(400)
+        .then(res => Promise.resolve(chaiExpect(res.headers['x-auth']).to.be.undefined)
+          .then(() => User.findById(testUsers[1]._id))
+          .then(user => chaiExpect(user.tokens).to.be.an('array').that.is.empty));
     });
   });
 });
