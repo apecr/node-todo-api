@@ -3,6 +3,7 @@ const request = require('supertest');
 
 const {app} = require('./../../server/server');
 const {Todo} = require('./../../server/models/todo');
+const {User} = require('./../../server/models/user');
 const {ObjectID} = require('mongodb');
 const {testTodos, populateTodos, testUsers, populateUsers} = require('./seed/seed');
 
@@ -136,8 +137,63 @@ describe('Testing Todo App', () => {
 
 describe('Testing the user sections of todoApp', () => {
   beforeEach('Populate users', populateUsers);
-  it('Should print hello world in console', () => {
-    console.log('Hello World');
+  describe('GET /users/me', () => {
+    it('should return user if authenticated', () => {
+      return request(app)
+        .get('/users/me')
+        .set('x-auth', testUsers[0].tokens[0].token)
+        .expect(200)
+        .then((res) => {
+          expect(res.body._id).toBe(testUsers[0]._id.toHexString());
+          expect(res.body.email).toBe(testUsers[0].email);
+        });
+    });
+    it('should return a 401 if not authenticated', () => {
+      return request(app)
+        .get('/users/me')
+        .expect(401)
+        .then((res) => {
+          expect(res.body).toEqual({});
+        });
+    });
+  });
+  describe('POST /users', () => {
+    const user = {email: 'test@example.com', password: '123mbn!'};
+    it('Should create a user', () => {
+      return request(app)
+        .post('/users')
+        .send(user)
+        .expect(201)
+        .then(res => {
+          expect(res.headers['x-auth']).toBeTruthy();
+          expect(res.body._id).toBeTruthy();
+          expect(res.body.email).toBe(user.email);
+        })
+        .then(() => User.findOne({email: user.email}))
+        .then(userDB => expect(userDB.password).not.toBe(user.password));
+    });
+    it('Should return validation errors if request is invalid', () => {
+      return request(app)
+        .post('/users')
+        .send({email: 'asasas', password: '123'})
+        .expect(400)
+        .then(res => {
+          expect(res.headers['x-auth']).not.toBeTruthy();
+          expect(res.body._message).toBe('Users validation failed');
+          expect(res.body.message).toBe('Users validation failed: email: asasas is not a valid email!, password: Path `password` (`123`) is shorter than the minimum allowed length (6).');
+        })
+        .then(() => User.findOne({email: 'asasas'}))
+        .then(userDB => expect(userDB).not.toBeTruthy());
+    });
+    it('Should not create user if email is in use', () => {
+      return request(app)
+        .post('/users')
+        .send({email: testUsers[0].email, password: '123456'})
+        .expect(400)
+        .then(res => {
+          expect(res.headers['x-auth']).not.toBeTruthy();
+        });
+    });
   });
 });
 
