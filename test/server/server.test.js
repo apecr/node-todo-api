@@ -1,11 +1,11 @@
 const expect = require('expect');
 const request = require('supertest');
 
-const {app} = require('./../../server/server');
-const {Todo} = require('./../../server/models/todo');
-const {User} = require('./../../server/models/user');
-const {ObjectID} = require('mongodb');
-const {testTodos, populateTodos, testUsers, populateUsers} = require('./seed/seed');
+const { app } = require('./../../server/server');
+const { Todo } = require('./../../server/models/todo');
+const { User } = require('./../../server/models/user');
+const { ObjectID } = require('mongodb');
+const { testTodos, populateTodos, testUsers, populateUsers } = require('./seed/seed');
 
 /* global define, it, describe, before, beforeEach, afterEach, after */
 
@@ -20,11 +20,11 @@ describe('Testing Todo App', () => {
       const text = 'Test todo task';
       return request(app)
         .post('/todos')
-        .send({text})
+        .send({ text })
         .expect(201)
         .expect((res) => expect(res.body.text).toBe(text))
         .then((res) => {
-          return Todo.find({text}).then((todos) => {
+          return Todo.find({ text }).then((todos) => {
             expect(todos.length).toBe(1);
             expect(todos[0].text).toBe(text);
           });
@@ -158,7 +158,7 @@ describe('Testing the user sections of todoApp', () => {
     });
   });
   describe('POST /users', () => {
-    const user = {email: 'test@example.com', password: '123mbn!'};
+    const user = { email: 'test@example.com', password: '123mbn!' };
     it('Should create a user', () => {
       return request(app)
         .post('/users')
@@ -169,26 +169,26 @@ describe('Testing the user sections of todoApp', () => {
           expect(res.body._id).toBeTruthy();
           expect(res.body.email).toBe(user.email);
         })
-        .then(() => User.findOne({email: user.email}))
+        .then(() => User.findOne({ email: user.email }))
         .then(userDB => expect(userDB.password).not.toBe(user.password));
     });
     it('Should return validation errors if request is invalid', () => {
       return request(app)
         .post('/users')
-        .send({email: 'asasas', password: '123'})
+        .send({ email: 'asasas', password: '123' })
         .expect(400)
         .then(res => {
           expect(res.headers['x-auth']).not.toBeTruthy();
           expect(res.body._message).toBe('Users validation failed');
           expect(res.body.message).toBe('Users validation failed: email: asasas is not a valid email!, password: Path `password` (`123`) is shorter than the minimum allowed length (6).');
         })
-        .then(() => User.findOne({email: 'asasas'}))
+        .then(() => User.findOne({ email: 'asasas' }))
         .then(userDB => expect(userDB).not.toBeTruthy());
     });
     it('Should not create user if email is in use', () => {
       return request(app)
         .post('/users')
-        .send({email: testUsers[0].email, password: '123456'})
+        .send({ email: testUsers[0].email, password: '123456' })
         .expect(400)
         .then(res => {
           expect(res.headers['x-auth']).not.toBeTruthy();
