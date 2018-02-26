@@ -85,9 +85,10 @@ app.patch('/todos/:id', (req, res) => {
 
 });
 
+
 app.post('/users', (req, res) => {
   const body = _.pick(req.body, ['email', 'password']);
-  let user = new User(body);
+  const user = new User(body);
   return user
     .save()
     .then(() => user.generateAuthToken())
@@ -97,6 +98,17 @@ app.post('/users', (req, res) => {
 
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
+});
+
+// POST /users/login {email, password}
+app.post('/users/login', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+  return User.finByCredentials(body.email, body.password)
+    .then(user => user.generateAuthToken()
+      .then(token => res.status(201).header('x-auth', token).send(user)))
+    .catch(error => {
+      return res.status(400).send(error);
+    });
 });
 
 app.listen(process.env.PORT, () => logger.info(`Listening at port ${process.env.PORT}`));
