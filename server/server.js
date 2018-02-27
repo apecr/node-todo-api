@@ -110,6 +110,12 @@ app.post('/users/login', (req, res) => {
     });
 });
 
+app.delete('/users/me/token', authenticate, (req, res) => {
+  return req.user.removeToken(req.token)
+    .then(() => res.status(200).send())
+    .catch(() => res.status(400).send());
+});
+
 app.listen(process.env.PORT, () => logger.info(`Listening at port ${process.env.PORT}`));
 
 // Export
