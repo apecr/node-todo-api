@@ -101,7 +101,7 @@ describe('Full test suite', () => {
           .set('x-auth', testUsers[1].tokens[0].token)
           .expect(200)
           .then(() => Todo.findById(id))
-          .then(todo => expect(todo).toBe(null));
+          .then(todo => expect(todo).toBeFalsy());
       });
       it('Should not remove a todo that I dont own', () => {
         const id = testTodos[0]._id.toHexString();
@@ -110,7 +110,7 @@ describe('Full test suite', () => {
           .set('x-auth', testUsers[1].tokens[0].token)
           .expect(404)
           .then(() => Todo.findById(id))
-          .then(todo => expect(todo).not.toBe(null));
+          .then(todo => expect(todo).toBeTruthy());
       });
       it('Should get a 404, the id does not exist', () => {
         return request(app)
@@ -142,7 +142,7 @@ describe('Full test suite', () => {
           .then(todo => {
             expect(todo.text).toBe('New todo text');
             expect(todo.completed).toBe(true);
-            expect(todo.completedAt).toBeTruthy();
+            expect(typeof todo.completedAt).toBe('number');
           });
       });
       it('Should not update first todo as second user', () => {
@@ -158,7 +158,7 @@ describe('Full test suite', () => {
           .then(todo => {
             expect(todo.text).not.toBe('New todo text');
             expect(todo.completed).toBe(false);
-            expect(todo.completedAt).not.toBeTruthy();
+            expect(todo.completedAt).toBeFalsy();
           });
       });
       it('Should clear completedAt when todo is not completed', () => {
@@ -175,7 +175,7 @@ describe('Full test suite', () => {
           .then(todo => {
             expect(todo.text).toBe('New todo text');
             expect(todo.completed).toBe(false);
-            expect(todo.completedAt).toBe(null);
+            expect(todo.completedAt).toBeNull();
           });
       });
 
@@ -224,12 +224,12 @@ describe('Full test suite', () => {
           .send({ email: 'asasas', password: '123' })
           .expect(400)
           .then(res => {
-            expect(res.headers['x-auth']).not.toBeTruthy();
+            expect(res.headers['x-auth']).toBeFalsy();
             expect(res.body._message).toBe('Users validation failed');
             expect(res.body.message).toBe('Users validation failed: email: asasas is not a valid email!, password: Path `password` (`123`) is shorter than the minimum allowed length (6).');
           })
           .then(() => User.findOne({ email: 'asasas' }))
-          .then(userDB => expect(userDB).not.toBeTruthy());
+          .then(userDB => expect(userDB).toBeFalsy());
       });
       it('Should not create user if email is in use', () => {
         return request(app)
@@ -237,7 +237,7 @@ describe('Full test suite', () => {
           .send({ email: testUsers[0].email, password: '123456' })
           .expect(400)
           .then(res => {
-            expect(res.headers['x-auth']).not.toBeTruthy();
+            expect(res.headers['x-auth']).toBeFalsy();
           });
       });
     });
@@ -249,7 +249,11 @@ describe('Full test suite', () => {
           .expect(201)
           .then(res => Promise.resolve(expect(res.headers['x-auth']).toBeTruthy())
             .then(() => User.findById(testUsers[1]._id))
-            .then(user => chaiExpect(user.tokens[1].token).to.be.equal(res.headers['x-auth'])));
+            .then(user =>  expect(user.toObject().tokens[1]).toMatchObject({
+              access: 'auth',
+              token: res.headers['x-auth']
+            }))
+          );
       });
       it('should reject invalid login', () => {
         return request(app)
