@@ -37,7 +37,7 @@ const UserSchema = new mongoose.Schema({
 
 UserSchema.methods.generateAuthToken = function() {
   const access = 'auth';
-  const token = jwt.sign({_id: this._id.toHexString(), access}, 'abc123').toString();
+  const token = jwt.sign({_id: this._id.toHexString(), access}, process.env.JWT_SECRET).toString();
   this.tokens = this.tokens.concat([ {access, token} ]);
   return this.save().then(() => token);
 };
@@ -50,7 +50,7 @@ UserSchema.statics.findByToken = function(token) {
   let decoded = undefined;
 
   try {
-    decoded = jwt.verify(token, 'abc123');
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (e) {
     return Promise.reject();
   }

@@ -5,9 +5,6 @@ const _ = require('lodash');
 const { ObjectID } = require('mongodb');
 const {logger} = require('./utils/logger');
 
-const env = config.prepareEnvironment();
-logger.info(`env ***** ${env}`);
-
 const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');

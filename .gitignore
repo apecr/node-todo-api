@@ -3,3 +3,4 @@ node_modules
 test-reports
 .scannerwork
 *.log
+server/config/config.json
